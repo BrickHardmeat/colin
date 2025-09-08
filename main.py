@@ -77,32 +77,26 @@ Generate epoch times for now, midnight tomorrow, and midnight the next day
     if src == "sky":
         return [
             str(datetime.strftime(datetime.now() + timedelta(i), "%Y%m%d"))
-            for i in range(7)
+            for i in range(8)
         ]
     elif src == "bt":
         return [
             datetime.now() - timedelta(hours=1)
         ] + [
             (datetime.combine(datetime.now(), time(0, 0)) + timedelta(i)) 
-            for i in range(1, 7)
+            for i in range(1, 8)
         ]
     elif src == "freeview":
         today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         return [
             math.trunc((today + timedelta(i)).timestamp())
-            for i in range(7)
-        ]
-     elif src == "rt":
-         today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        return [
-            math.trunc((today + timedelta(i)).timestamp())
-            for i in range(7)
+            for i in range(8)
         ]
     else:
         now = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         return [
             str(datetime.strftime(datetime.now() + timedelta(i), "%Y%m%d"))
-            for i in range(7)
+            for i in range(8)
         ]
 
 def get_channels_config() -> list:
@@ -362,51 +356,6 @@ for channel in channels_data:
                 "icon":        image_url,
                 "channel":     ch_name
             })
-
-    if channel.get('src') == "rt":
-        # Get some epoch times - right now, 12am tomorrow and 12am the day after tomorrow (so 48h)
-        dates = get_days("rt")
-        prev_name = ''
-        prev_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-        for date in dates:
-            url = f"https://www.radiotimes.com/api/broadcast/broadcast/channels/{channel.get('provider_id')}/schedule?from={date.strftime('%Y-%m-%dT%H:%M:%S.000Z')}&to={(date + timedelta(1)).strftime('%Y-%m-%dT%H:%M:%S.000Z')}"
-            req = requests.get(url)
-            if req.status_code != 200:
-                continue
-            epg_data = json.loads(req.text)
-            for item in epg_data:
-                if item['type'] != "episode":
-                    continue
-                if 'id' in item:
-                    programme_id = item['id']
-                    details_request = requests.get(f"https://www.radiotimes.com/api/broadcast/broadcast/details/{programme_id}")
-                    if details_request.status_code != 200:
-                        break
-                    details_json = json.loads(details_request.text)
-                    desc = details_json['description'] if 'description' in details_json else None
-                    if details_json.get('image').get('url') is not None:
-                        icon = details_json.get('image').get('url')
-                    else:
-                        icon = None
-                title = item['title']
-                start = datetime.strptime(item['start'], '%Y-%m-%dT%H:%M:%SZ')
-                end = datetime.strptime(item['end'], '%Y-%m-%dT%H:%M:%SZ')
-                ch_name = channel.get('xmltv_id')
-
-                # if end < (start.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(1)):
-                if prev_start == start:
-                    continue
-                ch_programme_data.append({
-                    "title": title,
-                    "description": desc,
-                    "start": start.timestamp(),
-                    "stop": end.timestamp(),
-                    "icon": icon,
-                    "channel": ch_name,
-                })
-                prev_name = title
-                prev_start = start
 
     validate_programmes_list(ch_programme_data)
 
