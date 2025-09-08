@@ -73,37 +73,37 @@ def get_days(src: str) -> list:
 Generate epoch times for now, midnight tomorrow, and midnight the next day
     :return: Times, in a list, as required by the source
     """
+    # For a weekly range
     if src == "sky":
-        now = str(datetime.strftime(datetime.now(), "%Y%m%d"))
-        day_1 = str(datetime.strftime(datetime.now() + timedelta(1), "%Y%m%d"))
-        day_2 = str(datetime.strftime(datetime.now() + timedelta(2), "%Y%m%d"))
-        return [now, day_1, day_2]
-
+        return [
+            str(datetime.strftime(datetime.now() + timedelta(i), "%Y%m%d"))
+            for i in range(7)
+        ]
     elif src == "bt":
-        now = datetime.now() - timedelta(hours=1)
-        day_1 = (datetime.combine(datetime.now(), time(0, 0)) + timedelta(1))
-        day_2 = (datetime.combine(datetime.now(), time(0, 0)) + timedelta(2))
-        return [now, day_1, day_2]
-
+        return [
+            datetime.now() - timedelta(hours=1)
+        ] + [
+            (datetime.combine(datetime.now(), time(0, 0)) + timedelta(i)) 
+            for i in range(1, 7)
+        ]
     elif src == "freeview":
-        midnight = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-
-        now = math.trunc(datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
-        day_1 = math.trunc((datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(1)).timestamp())
-        day_2 = math.trunc((datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(2)).timestamp())
-        return [now, day_1, day_2]
-
-    # elif src == "rt":
-    #     now = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    #     day_1 = (datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(1)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    #     day_2 = (datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(2)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-
+        today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        return [
+            math.trunc((today + timedelta(i)).timestamp())
+            for i in range(7)
+        ]
+     elif src == "rt":
+         today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        return [
+            math.trunc((today + timedelta(i)).timestamp())
+            for i in range(7)
+        ]
     else:
         now = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        day_1 = (datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(1))
-        day_2 = (datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(2))
-        return [now, day_1, day_2]
-
+        return [
+            str(datetime.strftime(datetime.now() + timedelta(i), "%Y%m%d"))
+            for i in range(7)
+        ]
 
 def get_channels_config() -> list:
     """
