@@ -2,8 +2,7 @@ name: Build EPG
 
 on:
   schedule:
-    - cron: '0 */8 * * *'
-  workflow_dispatch:
+    - cron: '0 */10 * * *'
 
 jobs:
   build:
