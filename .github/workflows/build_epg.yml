@@ -2,7 +2,7 @@ name: Build EPG
 
 on:
   schedule:
-    - cron: '0 1,13 * * *'
+    - cron: '0 23,12 * * *'
 
 jobs:
   build:
